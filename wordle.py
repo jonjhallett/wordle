@@ -73,7 +73,6 @@ def guess(guesses):
     alphabet_set = set([ch for ch in string.ascii_lowercase])
     match_pattern_include_set = alphabet_set - match_pattern_exclude_set
 
-
     match_pattern = ''
     for i in range(0, 5):
         position_include_set = match_pattern_include_set - \
@@ -95,7 +94,8 @@ def total_character_entropy(word, all_seen_characters):
     entropy = sum([character_entropy[ch] for ch in word])
     number_of_unique_characters = len(set([ch for ch in word]))
     lack_of_diversity_penalty = (5 - number_of_unique_characters) * 100
-    seen_before_penalty = sum([100 for ch in word if ch in all_seen_characters])
+    seen_before_penalty = sum([100 for ch in word if ch
+                              in all_seen_characters])
     return entropy + lack_of_diversity_penalty + seen_before_penalty
 
 
@@ -103,8 +103,9 @@ def entropy_sorted_words_file(all_seen_characters):
     words = []
     read_words_file(words)
     character_entropy = calculate_character_entropy(words)
-    return sorted(words, key=lambda word: total_character_entropy(word,
-                                            all_seen_characters))
+    return sorted(words,
+                  key=lambda word: total_character_entropy(
+                                     word, all_seen_characters))
 
 
 def read_words_file(words):
