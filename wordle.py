@@ -2,6 +2,7 @@
 
 import os
 import re
+import string
 import sys
 
 
@@ -58,7 +59,6 @@ def guess(guesses):
         for (i, guess_character, match_character) in zip(range(0, 5), word, matches):
             if match_character == 'G':
                 match_pattern_characters[i] = guess_character
-                include_characters.add(guess_character)
             elif match_character == 'Y':
                 include_characters.add(guess_character)
             elif match_character == 'X':
@@ -66,24 +66,26 @@ def guess(guesses):
 
     exclude_characters |= all_characters_seen - include_characters
 
-    match_pattern_characters_exlude_set = set(match_pattern_characters) - set('.')
-    if len(match_pattern_characters_exlude_set) == 0:
-        match_pattern_characters_exlude_re = '.'
+    match_pattern_characters_exlude_set = exclude_characters | set(match_pattern_characters) - set('.')
+    alphabet_set = set([ch for ch in string.ascii_lowercase])
+    match_pattern_include_set = alphabet_set - match_pattern_characters_exlude_set
+
+    if len(match_pattern_include_set) == 0:
+        match_pattern_characters_include_re = '.'
     else:
-        match_pattern_characters_exlude = ''.join(match_pattern_characters_exlude_set)
-        match_pattern_characters_exlude_re = f'[^{match_pattern_characters_exlude}]'
+        match_pattern_characters_include_string = ''.join(match_pattern_include_set)
+        match_pattern_characters_include_re = f'[{match_pattern_characters_include_string}]'
 
     match_pattern = ''
     for char in match_pattern_characters:
         if char == '.':
-            match_pattern += match_pattern_characters_exlude_re
+            match_pattern += match_pattern_characters_include_re
         else:
             match_pattern += char
 
-    exclude_patten = ''.join(exclude_characters)
     include_patten = ''.join(include_characters)
 
-    command_string = f"grep '^{match_pattern}$' /usr/share/dict/words | grep -v '[{exclude_patten}A-Z]' | grep '[{include_patten}]'"
+    command_string = f"grep '^{match_pattern}$' /usr/share/dict/words | grep '[{include_patten}]'"
 
     print(command_string)
 
