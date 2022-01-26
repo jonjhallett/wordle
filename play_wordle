@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+
+from wordle import generate_next_guesses
+import sys
+
+def main():
+    actual_word = sys.argv[1]
+
+    previous_guesses = []
+    while True:
+        next_guesses = generate_next_guesses(previous_guesses)
+        if len(next_guesses) == 0:
+            print("No answer!")
+            exit(0)
+        elif len(next_guesses) == 1:
+            next_guess = next_guesses[0]
+            print(next_guess)
+            print("Best guess!")
+            exit(0)
+        else:
+            next_guess = next_guesses[0]
+            if next_guess == actual_word:
+                print(next_guess)
+                print("Done!")
+                exit(0)
+            matches = find_matches(actual_word, next_guess)
+            previous_guesses.append((next_guess, matches))
+            print(next_guess)
+            print(matches)
+
+
+def find_matches(word, guess):
+    matches = ''
+    word_characters = [ch for ch in word]
+    guess_characters = [ch for ch in guess]
+    for (word_ch, guess_ch) in zip(word_characters, guess_characters):
+        if word_ch == guess_ch:
+            matches += 'G'
+        elif guess_ch in word_characters:
+            matches += 'Y'
+        else:
+            matches += 'X'
+
+    return matches
+
+
+main()
