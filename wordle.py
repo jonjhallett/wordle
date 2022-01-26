@@ -10,12 +10,13 @@ import sys
 def main():
     guesses = parse_arguments()
 
-    (guess_pattern, all_seen_characters) = guess(guesses)
+    (guess_pattern, all_seen_characters, must_haves) = guess(guesses)
 
     words = entropy_sorted_words_file(all_seen_characters)
     for word in words:
-        if re.search(f'^{guess_pattern}$', word):
-            print(word)
+        if re.search(f'^{guess_pattern}$', word) and \
+            includes_must_haves(word, must_haves):
+                print(word)
 
 
 def parse_arguments():
@@ -35,6 +36,9 @@ def parse_arguments():
 
     return guesses
 
+
+def includes_must_haves(word, must_haves):
+    return all([ch in word for ch in must_haves])
 
 def set_of_characters_in_list(list_of_strings):
     set_of_characters = set()
@@ -59,6 +63,7 @@ def guess(guesses):
                                                          matches):
             if match_character == 'G':
                 match_pattern_characters[i] = guess_character
+                include_characters.add(guess_character)
             elif match_character == 'Y':
                 match_pattern_characters_exclude[i] |= set(guess_character)
                 include_characters.add(guess_character)
@@ -67,9 +72,7 @@ def guess(guesses):
 
     exclude_characters |= all_seen_characters - include_characters
 
-    match_pattern_exclude_set = exclude_characters \
-        | set(match_pattern_characters) \
-        - set('.')
+    match_pattern_exclude_set = exclude_characters - set('.')
     alphabet_set = set([ch for ch in string.ascii_lowercase])
     match_pattern_include_set = alphabet_set - match_pattern_exclude_set
 
@@ -84,7 +87,7 @@ def guess(guesses):
         else:
             match_pattern += match_pattern_characters[i]
 
-    return (match_pattern, all_seen_characters)
+    return (match_pattern, all_seen_characters, include_characters)
 
 
 character_entropy = {}
