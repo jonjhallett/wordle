@@ -13,6 +13,9 @@ def main():
     words = entropy_sorted_words_file()
 
     (guess_pattern, guess_must_haves) = guess(guesses)
+    for word in words:
+        if re.search(f'^{guess_pattern}$', word):
+            print(word)
 
 
 def parse_arguments():
@@ -74,16 +77,17 @@ def guess(guesses):
     match_pattern = ''.join([match_pattern_include_re if ch == '.' else ch
                              for ch in match_pattern_characters])
 
-    include_greps = ''.join([f" | grep '{ch}'" for ch in include_characters])
-
     return (match_pattern, include_characters)
+
 
 character_entropy = {}
 
 
 def total_character_entropy(word):
     entropy = sum([character_entropy[ch] for ch in word])
-    return entropy
+    number_of_unique_characters = len(set([ch for ch in word]))
+    lack_of_diversity_penalty = (5 - number_of_unique_characters) * 100
+    return entropy + lack_of_diversity_penalty
 
 
 def entropy_sorted_words_file():
