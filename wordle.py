@@ -15,7 +15,8 @@ def main():
         print(guesses[0][0])
     elif len(guesses) == 1 and guesses[0][1] == 'XXXXX':
         print('until')
-    elif len(guesses) == 2 and guesses[0][1] == 'XXXXX' and guesses[1][1] == 'XXXXX':
+    elif len(guesses) == 2 and guesses[0][1] == 'XXXXX' \
+            and guesses[1][1] == 'XXXXX':
         print('psych')
     else:
         guess(guesses)
@@ -56,7 +57,9 @@ def guess(guesses):
     for guess in guesses:
         word = guess[0]
         matches = guess[1]
-        for (i, guess_character, match_character) in zip(range(0, 5), word, matches):
+        for (i, guess_character, match_character) in zip(range(0, 5),
+                                                         word,
+                                                         matches):
             if match_character == 'G':
                 match_pattern_characters[i] = guess_character
             elif match_character == 'Y':
@@ -66,26 +69,26 @@ def guess(guesses):
 
     exclude_characters |= all_characters_seen - include_characters
 
-    match_pattern_characters_exlude_set = exclude_characters | set(match_pattern_characters) - set('.')
+    match_pattern_exclude_set = exclude_characters \
+        | set(match_pattern_characters) \
+        - set('.')
     alphabet_set = set([ch for ch in string.ascii_lowercase])
-    match_pattern_include_set = alphabet_set - match_pattern_characters_exlude_set
+    match_pattern_include_set = alphabet_set - match_pattern_exclude_set
 
-    if len(match_pattern_include_set) == 0:
-        match_pattern_characters_include_re = '.'
-    else:
-        match_pattern_characters_include_string = ''.join(match_pattern_include_set)
-        match_pattern_characters_include_re = f'[{match_pattern_characters_include_string}]'
+    match_pattern_include_string = ''.join(sorted(match_pattern_include_set))
+    match_pattern_include_re = f'[{match_pattern_include_string}]'
 
     match_pattern = ''
     for char in match_pattern_characters:
         if char == '.':
-            match_pattern += match_pattern_characters_include_re
+            match_pattern += match_pattern_include_re
         else:
             match_pattern += char
 
-    include_patten = ''.join(include_characters)
+    include_greps = ''.join([f" | grep '{ch}'" for ch in include_characters])
 
-    command_string = f"grep '^{match_pattern}$' /usr/share/dict/words | grep '[{include_patten}]'"
+    command_string = f"grep '^{match_pattern}$' /usr/share/dict/words" \
+                     f"{include_greps}"
 
     print(command_string)
 
