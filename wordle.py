@@ -78,12 +78,8 @@ def guess(guesses):
     match_pattern_include_string = ''.join(sorted(match_pattern_include_set))
     match_pattern_include_re = f'[{match_pattern_include_string}]'
 
-    match_pattern = ''
-    for char in match_pattern_characters:
-        if char == '.':
-            match_pattern += match_pattern_include_re
-        else:
-            match_pattern += char
+    match_pattern = ''.join([match_pattern_include_re if ch == '.' else ch
+                             for ch in match_pattern_characters])
 
     include_greps = ''.join([f" | grep '{ch}'" for ch in include_characters])
 
