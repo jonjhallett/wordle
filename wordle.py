@@ -10,13 +10,23 @@ import sys
 def main():
     guesses = parse_arguments()
 
+    next_guesses = generate_next_guesses(guesses)
+    for word in next_guesses:
+        print(word)
+
+
+def generate_next_guesses(guesses):
     (guess_pattern, all_seen_characters, must_haves) = guess(guesses)
 
     words = entropy_sorted_words_file(all_seen_characters)
+
+    next_guesses = []
     for word in words:
         if re.search(f'^{guess_pattern}$', word) and \
             includes_must_haves(word, must_haves):
-                print(word)
+                next_guesses.append(word)
+
+    return next_guesses
 
 
 def parse_arguments():
@@ -132,4 +142,5 @@ def calculate_character_entropy(words):
     return character_entropy
 
 
-main()
+if __name__ == '__main__':
+    main()
