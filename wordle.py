@@ -10,9 +10,9 @@ import sys
 def main():
     guesses = parse_arguments()
 
-    words = entropy_sorted_words_file()
+    (guess_pattern, all_seen_characters) = guess(guesses)
 
-    (guess_pattern, guess_must_haves) = guess(guesses)
+    words = entropy_sorted_words_file(all_seen_characters)
     for word in words:
         if re.search(f'^{guess_pattern}$', word):
             print(word)
@@ -45,9 +45,10 @@ def set_of_characters_in_list(list_of_strings):
 
 def guess(guesses):
     words = [guess[0] for guess in guesses]
-    all_characters_seen = set_of_characters_in_list(words)
+    all_seen_characters = set_of_characters_in_list(words)
 
     match_pattern_characters = ['.', '.', '.', '.', '.']
+    match_pattern_characters_exclude = [set(), set(), set(), set(), set()]
     include_characters = set()
     exclude_characters = set()
     for guess in guesses:
@@ -59,11 +60,12 @@ def guess(guesses):
             if match_character == 'G':
                 match_pattern_characters[i] = guess_character
             elif match_character == 'Y':
+                match_pattern_characters_exclude[i] |= set(guess_character)
                 include_characters.add(guess_character)
             elif match_character == 'X':
                 exclude_characters.add(guess_character)
 
-    exclude_characters |= all_characters_seen - include_characters
+    exclude_characters |= all_seen_characters - include_characters
 
     match_pattern_exclude_set = exclude_characters \
         | set(match_pattern_characters) \
@@ -71,30 +73,38 @@ def guess(guesses):
     alphabet_set = set([ch for ch in string.ascii_lowercase])
     match_pattern_include_set = alphabet_set - match_pattern_exclude_set
 
-    match_pattern_include_string = ''.join(sorted(match_pattern_include_set))
-    match_pattern_include_re = f'[{match_pattern_include_string}]'
 
-    match_pattern = ''.join([match_pattern_include_re if ch == '.' else ch
-                             for ch in match_pattern_characters])
+    match_pattern = ''
+    for i in range(0, 5):
+        position_include_set = match_pattern_include_set - \
+                               match_pattern_characters_exclude[i]
+        match_pattern_include_string = ''.join(sorted(position_include_set))
+        match_pattern_include_re = f'[{match_pattern_include_string}]'
+        if match_pattern_characters[i] == '.':
+            match_pattern += match_pattern_include_re
+        else:
+            match_pattern += match_pattern_characters[i]
 
-    return (match_pattern, include_characters)
+    return (match_pattern, all_seen_characters)
 
 
 character_entropy = {}
 
 
-def total_character_entropy(word):
+def total_character_entropy(word, all_seen_characters):
     entropy = sum([character_entropy[ch] for ch in word])
     number_of_unique_characters = len(set([ch for ch in word]))
     lack_of_diversity_penalty = (5 - number_of_unique_characters) * 100
-    return entropy + lack_of_diversity_penalty
+    seen_before_penalty = sum([100 for ch in word if ch in all_seen_characters])
+    return entropy + lack_of_diversity_penalty + seen_before_penalty
 
 
-def entropy_sorted_words_file():
+def entropy_sorted_words_file(all_seen_characters):
     words = []
     read_words_file(words)
     character_entropy = calculate_character_entropy(words)
-    return sorted(words, key=total_character_entropy)
+    return sorted(words, key=lambda word: total_character_entropy(word,
+                                            all_seen_characters))
 
 
 def read_words_file(words):
