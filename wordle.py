@@ -65,14 +65,26 @@ def guess(guesses):
                 exclude_characters.add(guess_character)
 
     exclude_characters |= all_characters_seen - include_characters
-    match_pattern = ''.join(match_pattern_characters)
+    match_pattern_characters_exlude_set = set(match_pattern_characters) - set('.')
+    if len(match_pattern_characters_exlude_set) == 0:
+        match_pattern_characters_exlude_re = '.'
+    else:
+        match_pattern_characters_exlude = ''.join(match_pattern_characters_exlude_set)
+        match_pattern_characters_exlude_re = f'[^{match_pattern_characters_exlude}]'
+
+    match_pattern = ''
+    for char in match_pattern_characters:
+        if char == '.':
+            match_pattern += match_pattern_characters_exlude_re
+        else:
+            match_pattern += char
 
     exclude_patten = ''.join(exclude_characters)
     include_patten = ''.join(include_characters)
 
     command_string = f"grep '^{match_pattern}$' /usr/share/dict/words | grep -v '[{exclude_patten}A-Z]' | grep '[{include_patten}]'"
 
-    os.system(command_string)
+    print(command_string)
 
 
 main()
