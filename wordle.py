@@ -65,6 +65,7 @@ def guess(guesses):
                 exclude_characters.add(guess_character)
 
     exclude_characters |= all_characters_seen - include_characters
+
     match_pattern_characters_exlude_set = set(match_pattern_characters) - set('.')
     if len(match_pattern_characters_exlude_set) == 0:
         match_pattern_characters_exlude_re = '.'
