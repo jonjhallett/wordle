@@ -86,7 +86,7 @@ def guess(guesses):
     command_string = f"grep '^{match_pattern}$' /usr/share/dict/words" \
                      f"{include_greps}"
 
-    print(command_string)
+    os.system(command_string)
 
 
 main()
