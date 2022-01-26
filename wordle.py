@@ -35,7 +35,6 @@ def parse_arguments():
             raise ValueError('Matches should be five letters of X, Y or G')
         guesses.append((guess, matches))
 
-    print(guesses)
     return guesses
 
 
