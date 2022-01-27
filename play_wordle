@@ -4,13 +4,14 @@ import random
 import sys
 from wordle import generate_next_guesses, word_list
 
+
 def main():
     starter_words = sys.argv[1:]
     sample_words = word_list()
 
     random.shuffle(sample_words)
 
-    number_of_samples = 200 
+    number_of_samples = 200
 
     rounds_histogram = {}
     for actual_word in sample_words[0:number_of_samples]:
