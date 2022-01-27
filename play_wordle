@@ -1,32 +1,53 @@
 #!/usr/bin/env python3
 
-from wordle import generate_next_guesses
+import random
 import sys
+from wordle import generate_next_guesses, word_list
 
 def main():
-    actual_word = sys.argv[1]
+    starter_words = sys.argv[1:]
+    sample_words = word_list()
 
-    previous_guesses = []
-    while True:
-        next_guesses = generate_next_guesses(previous_guesses)
-        if len(next_guesses) == 0:
-            print("No answer!")
-            exit(0)
-        elif len(next_guesses) == 1:
-            next_guess = next_guesses[0]
-            print(next_guess)
-            print("Best guess!")
-            exit(0)
-        else:
-            next_guess = next_guesses[0]
-            if next_guess == actual_word:
+    random.shuffle(sample_words)
+
+    number_of_samples = 1000
+
+    rounds_histogram = {}
+    for actual_word in sample_words[0:number_of_samples]:
+        previous_guesses = []
+        rounds = 1
+        for starter_word in starter_words:
+            matches = find_matches(actual_word, starter_word)
+            previous_guesses.append((starter_word, matches))
+            rounds += 1
+        while True:
+            next_guesses = generate_next_guesses(previous_guesses)
+            if len(next_guesses) == 0:
+                print("No answer!")
+                break
+            elif len(next_guesses) == 1:
+                next_guess = next_guesses[0]
                 print(next_guess)
-                print("Done!")
-                exit(0)
-            matches = find_matches(actual_word, next_guess)
-            previous_guesses.append((next_guess, matches))
-            print(next_guess)
-            print(matches)
+                print("Best guess!")
+                break
+            else:
+                next_guess = next_guesses[0]
+                if next_guess == actual_word:
+                    print(next_guess)
+                    print("Got it!")
+                    break
+                matches = find_matches(actual_word, next_guess)
+                previous_guesses.append((next_guess, matches))
+                print(next_guess)
+                print(matches)
+            rounds += 1
+        rounds_histogram[rounds] = rounds_histogram.get(rounds, 0) + 1
+    print(sorted(rounds_histogram))
+    total = 0
+    for rounds in rounds_histogram:
+        total += rounds_histogram[rounds] * rounds
+    print(total / number_of_samples)
+
 
 
 def find_matches(word, guess):

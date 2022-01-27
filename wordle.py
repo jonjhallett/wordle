@@ -112,10 +112,23 @@ def total_character_entropy(word, all_seen_characters):
     return entropy + lack_of_diversity_penalty + seen_before_penalty
 
 
+words = []
+
+
+def word_list():
+    global words
+    if not words:
+        read_words_file(words)
+
+    return words
+
+
 def entropy_sorted_words_file(all_seen_characters):
-    words = []
-    read_words_file(words)
-    character_entropy = calculate_character_entropy(words)
+    words = word_list()
+
+    global character_entropy
+    if not character_entropy:
+        character_entropy = calculate_character_entropy(words)
     return sorted(words,
                   key=lambda word: total_character_entropy(
                                      word, all_seen_characters))
