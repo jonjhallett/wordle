@@ -17,29 +17,24 @@ def main():
         previous_guesses = []
         rounds = 1
         for starter_word in starter_words:
+            if starter_word == actual_word:
+                break
             matches = find_matches(actual_word, starter_word)
             previous_guesses.append((starter_word, matches))
             rounds += 1
         while True:
             next_guesses = generate_next_guesses(previous_guesses)
             if len(next_guesses) == 0:
-                print("No answer!")
                 break
             elif len(next_guesses) == 1:
                 next_guess = next_guesses[0]
-                print(next_guess)
-                print("Best guess!")
                 break
             else:
                 next_guess = next_guesses[0]
                 if next_guess == actual_word:
-                    print(next_guess)
-                    print("Got it!")
                     break
                 matches = find_matches(actual_word, next_guess)
                 previous_guesses.append((next_guess, matches))
-                print(next_guess)
-                print(matches)
             rounds += 1
         rounds_histogram[rounds] = rounds_histogram.get(rounds, 0) + 1
     print(sorted(rounds_histogram))
