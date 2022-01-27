@@ -1,8 +1,9 @@
 # wordle
 
 A quick and dirty program to generate Wordle guesses using
-/usr/share/dict/words.
-
+words from /usr/share/dict/words. `wordle.py` uses character frequency
+analysis with penalties aimed at generating the most information from each
+guess.
 ```
 $ python3 wordle.py stern XYYXX clamp XXXXX bidet XYXGG
 quiet
