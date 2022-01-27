@@ -23,8 +23,8 @@ def generate_next_guesses(guesses):
     next_guesses = []
     for word in words:
         if re.search(f'^{guess_pattern}$', word) and \
-            includes_must_haves(word, must_haves):
-                next_guesses.append(word)
+                includes_must_haves(word, must_haves):
+            next_guesses.append(word)
 
     return next_guesses
 
@@ -49,6 +49,7 @@ def parse_arguments():
 
 def includes_must_haves(word, must_haves):
     return all([ch in word for ch in must_haves])
+
 
 def set_of_characters_in_list(list_of_strings):
     set_of_characters = set()
@@ -109,7 +110,10 @@ def total_character_entropy(word, all_seen_characters):
     lack_of_diversity_penalty = (5 - number_of_unique_characters) * 100
     seen_before_penalty = sum([100 for ch in word if ch
                               in all_seen_characters])
-    return entropy + lack_of_diversity_penalty + seen_before_penalty
+    vowel_penalty = sum([100 for ch in word if ch
+                         in ['a', 'e', 'i', 'o', 'u', 'y']])
+    return entropy + lack_of_diversity_penalty + seen_before_penalty + \
+        vowel_penalty
 
 
 words = []
