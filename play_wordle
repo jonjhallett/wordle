@@ -10,7 +10,7 @@ def main():
 
     random.shuffle(sample_words)
 
-    number_of_samples = 1000
+    number_of_samples = 200 
 
     rounds_histogram = {}
     for actual_word in sample_words[0:number_of_samples]:
@@ -37,12 +37,19 @@ def main():
                 previous_guesses.append((next_guess, matches))
             rounds += 1
         rounds_histogram[rounds] = rounds_histogram.get(rounds, 0) + 1
-    print(sorted(rounds_histogram))
+    print_histogram(rounds_histogram, number_of_samples)
     total = 0
     for rounds in rounds_histogram:
         total += rounds_histogram[rounds] * rounds
     print(total / number_of_samples)
 
+
+def print_histogram(histogram, number_of_samples):
+    for n in sorted(histogram):
+        print(f'{n:2} ', end='')
+        for i in range(0, int(histogram[n] * 60 / number_of_samples)):
+            print('*', end='')
+        print()
 
 
 def find_matches(word, guess):
