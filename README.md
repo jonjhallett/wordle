@@ -12,7 +12,7 @@ quiet
 where X is grey, Y is yellow and G is green.
 
 To test starter words, run `play_wordle`, which will give you the spread of
-rounds played and an average.
+rounds played and an average, based on a sample of random target words.
 
 ```
 $ ./play_wordle stern clamp
