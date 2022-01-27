@@ -76,7 +76,7 @@ def guess(guesses):
                 match_pattern_characters[i] = guess_character
                 include_characters.add(guess_character)
             elif match_character == 'Y':
-                match_pattern_characters_exclude[i] |= set(guess_character)
+                match_pattern_characters_exclude[i].add(guess_character)
                 include_characters.add(guess_character)
             elif match_character == 'X':
                 exclude_characters.add(guess_character)
