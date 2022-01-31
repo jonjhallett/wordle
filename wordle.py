@@ -16,17 +16,21 @@ def main():
 
 
 def generate_next_guesses(guesses):
+    round = len(guesses) + 1
     (guess_pattern, all_seen_characters, must_haves) = guess(guesses)
 
-    words = entropy_sorted_words_file(all_seen_characters)
+    next_guesses = search_space_reduction_sorted_words(all_seen_characters)
 
-    next_guesses = []
-    for word in words:
-        if re.search(f'^{guess_pattern}$', word) and \
-                includes_must_haves(word, must_haves):
-            next_guesses.append(word)
+    best_guesses = []
+    for word in next_guesses:
+        if re.search(f'^{guess_pattern}$', word):
+            if includes_must_haves(word, must_haves):
+                best_guesses.append(word)
 
-    return next_guesses
+    if len(best_guesses) == 1 or round > 2:
+        return best_guesses
+    else:
+        return next_guesses
 
 
 def parse_arguments():
@@ -59,8 +63,8 @@ def set_of_characters_in_list(list_of_strings):
 
 
 def guess(guesses):
-    words = [guess[0] for guess in guesses]
-    all_seen_characters = set_of_characters_in_list(words)
+    guess_words = [guess[0] for guess in guesses]
+    all_seen_characters = set_of_characters_in_list(guess_words)
 
     match_pattern_characters = ['.', '.', '.', '.', '.']
     match_pattern_characters_exclude = [set(), set(), set(), set(), set()]
@@ -101,19 +105,20 @@ def guess(guesses):
     return (match_pattern, all_seen_characters, include_characters)
 
 
-character_entropy = {}
+search_space_reduction = {}
 
 
-def total_character_entropy(word, all_seen_characters):
-    entropy = sum([character_entropy[ch] for ch in word])
+def total_search_space_reducation(word, all_seen_characters):
+    average_search_space_reduction = sum([search_space_reduction[ch]
+                                         for ch in word])
     number_of_unique_characters = len(set([ch for ch in word]))
-    lack_of_diversity_penalty = (5 - number_of_unique_characters) * 100
-    seen_before_penalty = sum([100 for ch in word if ch
+    lack_of_diversity_penalty = (5 - number_of_unique_characters) * 200
+    seen_before_penalty = sum([200 for ch in word if ch
                               in all_seen_characters])
     vowel_penalty = sum([100 for ch in word if ch
                          in ['a', 'e', 'i', 'o', 'u', 'y']])
-    return entropy + lack_of_diversity_penalty + seen_before_penalty + \
-        vowel_penalty
+    return average_search_space_reduction + lack_of_diversity_penalty + \
+        seen_before_penalty + vowel_penalty
 
 
 words = []
@@ -127,15 +132,16 @@ def word_list():
     return words
 
 
-def entropy_sorted_words_file(all_seen_characters):
+def search_space_reduction_sorted_words(all_seen_characters):
     words = word_list()
 
-    global character_entropy
-    if not character_entropy:
-        character_entropy = calculate_character_entropy(words)
+    global search_space_reduction
+    if not search_space_reduction:
+        search_space_reduction = calculate_search_space_reduction(words)
     return sorted(words,
-                  key=lambda word: total_character_entropy(
-                                     word, all_seen_characters))
+                  key=lambda word: total_search_space_reducation(
+                                     word,
+                                     all_seen_characters))
 
 
 def read_words_file(words):
@@ -145,18 +151,35 @@ def read_words_file(words):
         words.append(word)
 
 
-def calculate_character_entropy(words):
-    character_frequency = {}
+def calculate_search_space_reduction(words):
+    words_with_character = {}
+    character_total = {}
     total = 0
     for word in words:
-        for ch in [ch for ch in word]:
-            character_frequency[ch] = character_frequency.get(ch, 0) + 1
+        characters_in_word = [ch for ch in word]
+        for ch in characters_in_word:
+            character_total[ch] = character_total.get(ch, 0) + 1
             total += 1
+        for ch in set(characters_in_word):
+            words_with_character[ch] = words_with_character.get(ch, 0) + 1
 
-    for ch in character_frequency:
-        character_entropy[ch] = -log(character_frequency[ch] / total) / log(2)
+    character_probability = {}
+    for ch in character_total:
+        character_probability[ch] = character_total[ch] / total
 
-    return character_entropy
+    search_space_reduction = {}
+    for ch in words_with_character:
+        search_space_reduction[ch] = words_with_character.get(ch, 0) \
+                                        / len(words)
+
+    average_search_space_reduction = {}
+    for ch in words_with_character:
+        average_search_space_reduction[ch] = \
+                character_probability[ch] * search_space_reduction[ch] + \
+                (1 - character_probability[ch]) * \
+                (1 - search_space_reduction[ch])
+
+    return average_search_space_reduction
 
 
 if __name__ == '__main__':
