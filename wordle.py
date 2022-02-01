@@ -19,7 +19,7 @@ def generate_next_guesses(guesses):
     round = len(guesses) + 1
     (guess_pattern, all_seen_characters, must_haves) = guess(guesses)
 
-    next_guesses = search_space_reduction_sorted_words(all_seen_characters)
+    next_guesses = word_list()
 
     best_guesses = []
     for word in next_guesses:
@@ -27,10 +27,8 @@ def generate_next_guesses(guesses):
             if includes_must_haves(word, must_haves):
                 best_guesses.append(word)
 
-    if len(best_guesses) == 1 or round > 2:
-        return best_guesses
-    else:
-        return next_guesses
+    return search_space_reduction_sorted_words(best_guesses,
+                                               all_seen_characters)
 
 
 def parse_arguments():
@@ -105,42 +103,36 @@ def guess(guesses):
     return (match_pattern, all_seen_characters, include_characters)
 
 
-search_space_reduction = {}
-
-
-def total_search_space_reducation(word, all_seen_characters):
+def total_search_space_reducation(word,
+                                  search_space_reduction,
+                                  all_seen_characters):
     average_search_space_reduction = sum([search_space_reduction[ch]
                                          for ch in word])
     number_of_unique_characters = len(set([ch for ch in word]))
     lack_of_diversity_penalty = (5 - number_of_unique_characters) * 200
     seen_before_penalty = sum([200 for ch in word if ch
                               in all_seen_characters])
-    vowel_penalty = sum([100 for ch in word if ch
-                         in ['a', 'e', 'i', 'o', 'u', 'y']])
     return average_search_space_reduction + lack_of_diversity_penalty + \
-        seen_before_penalty + vowel_penalty
+        seen_before_penalty
 
 
-words = []
+words_from_file = []
 
 
 def word_list():
-    global words
-    if not words:
-        read_words_file(words)
+    global words_from_file
+    if not words_from_file:
+        read_words_file(words_from_file)
 
-    return words
+    return words_from_file
 
 
-def search_space_reduction_sorted_words(all_seen_characters):
-    words = word_list()
-
-    global search_space_reduction
-    if not search_space_reduction:
-        search_space_reduction = calculate_search_space_reduction(words)
+def search_space_reduction_sorted_words(words, all_seen_characters):
+    search_space_reduction = calculate_search_space_reduction(words)
     return sorted(words,
                   key=lambda word: total_search_space_reducation(
                                      word,
+                                     search_space_reduction,
                                      all_seen_characters))
 
 
