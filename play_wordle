@@ -8,10 +8,10 @@ from wordle import generate_next_guesses, word_list
 def main():
     starter_words = sys.argv[1:]
 
-    sample_words = word_list()
+    sample_words = answer_word_list()
     random.shuffle(sample_words)
 
-    number_of_samples = 200
+    number_of_samples = len(sample_words)
 
     rounds_histogram = {}
     for actual_word in sample_words[0:number_of_samples]:
@@ -87,6 +87,16 @@ def find_matches(word, guess):
             matches += 'X'
 
     return matches
+
+
+def answer_word_list():
+    answer_words = []
+    answer_word_file = open('answer_words.txt', 'r')
+    for line in answer_word_file:
+        word = line.rstrip()
+        answer_words.append(word)
+
+    return answer_words
 
 
 main()
