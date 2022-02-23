@@ -106,8 +106,8 @@ def guess(guesses):
 def total_search_space_reducation(word,
                                   search_space_reduction,
                                   all_seen_characters):
-    average_search_space_reduction = sum([search_space_reduction[ch]
-                                         for ch in word])
+    average_search_space_reduction = sum([search_space_reduction[i][ch]
+                                         for (i, ch) in zip(range(0, 5), word)])
     number_of_unique_characters = len(set([ch for ch in word]))
     lack_of_diversity_penalty = (5 - number_of_unique_characters) * 200
     seen_before_penalty = sum([200 for ch in word if ch
@@ -145,31 +145,33 @@ def read_words_file(words):
 
 def calculate_search_space_reduction(words):
     words_with_character = {}
-    character_total = {}
-    total = 0
+    character_position_total = [{}, {}, {}, {}, {}]
+    position_total = [0, 0, 0, 0, 0]
     for word in words:
         characters_in_word = [ch for ch in word]
-        for ch in characters_in_word:
-            character_total[ch] = character_total.get(ch, 0) + 1
-            total += 1
+        for (i, ch) in zip(range(0, 5), characters_in_word):
+            character_position_total[i][ch] = character_position_total[i].get(ch, 0) + 1
+            position_total[i] += 1
         for ch in set(characters_in_word):
             words_with_character[ch] = words_with_character.get(ch, 0) + 1
 
-    character_probability = {}
-    for ch in character_total:
-        character_probability[ch] = character_total[ch] / total
+    character_position_probability = [{}, {}, {}, {}, {}]
+    for i in range(0, 5):
+        for ch in character_position_total[i]:
+            character_position_probability[i][ch] = character_position_total[i][ch] / position_total[i]
 
     search_space_reduction = {}
     for ch in words_with_character:
         search_space_reduction[ch] = words_with_character.get(ch, 0) \
                                         / len(words)
 
-    average_search_space_reduction = {}
+    average_search_space_reduction = [{}, {}, {}, {}, {}]
     for ch in words_with_character:
-        average_search_space_reduction[ch] = \
-                character_probability[ch] * search_space_reduction[ch] + \
-                (1 - character_probability[ch]) * \
-                (1 - search_space_reduction[ch])
+        for i in range(0, 5):
+            average_search_space_reduction[i][ch] = \
+                    character_position_probability[i].get(ch, 0) * search_space_reduction[ch] + \
+                    (1 - character_position_probability[i].get(ch, 0)) * \
+                    (1 - search_space_reduction[ch])
 
     return average_search_space_reduction
 
