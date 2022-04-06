@@ -16,7 +16,7 @@ To test starter words, run `play_wordle`, which will give you the spread of
 rounds played and an average, based on a sample of random target words. You'll to extract the answer word list from the Wordle web page and save to a file called `answer_words.txt`.
 
 ```
-$ ./play_wordle stern clamp
+$ ./play_wordle.py stern clamp
 [...]
 thing
  rents XXYYX clamp XXXXX ingot YYYXY
