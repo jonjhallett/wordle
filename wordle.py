@@ -81,9 +81,11 @@ def guess(guesses):
                 match_pattern_characters_exclude[i].add(guess_character)
                 include_characters.add(guess_character)
             elif match_character == 'X':
+                match_pattern_characters_exclude[i].add(guess_character)
                 exclude_characters.add(guess_character)
 
-    exclude_characters |= all_seen_characters - include_characters
+    exclude_characters |= all_seen_characters
+    exclude_characters -= include_characters
 
     match_pattern_exclude_set = exclude_characters - set('.')
     alphabet_set = set([ch for ch in string.ascii_lowercase])
