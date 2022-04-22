@@ -40,11 +40,11 @@ def parse_arguments():
     arguments = iter(sys.argv[1:])
     for guess in arguments:
         matches = next(arguments)
-        if not re.search(r'^[a-z]{5}$', guess):
+        if not re.search(r'^[a-zA-Z]{5}$', guess):
             raise ValueError('Guesses should be five letter words')
-        if not re.search(r'^[XYG]{5}$', matches):
+        if not re.search(r'^[xygXYG]{5}$', matches):
             raise ValueError('Matches should be five letters of X, Y or G')
-        guesses.append((guess, matches))
+        guesses.append((guess.lower(), matches.upper()))
 
     return guesses
 
