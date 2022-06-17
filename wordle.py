@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from math import log
-import os
 import re
 import string
 import sys
