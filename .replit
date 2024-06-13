@@ -1,0 +1,2 @@
+run = "python3 wordle.py"
+entrypoint = "main.sh"
